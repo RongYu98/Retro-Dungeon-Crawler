@@ -14,13 +14,25 @@ public class Player extends Character{
 	private int regenCounter = 0;
 	private int regenDivider = 10;
 	
+	private int expCounter = 0;
+	
 	
 	public Player( String name ) {
 		super( name );
 		super.setFill(Color.BLUE);
-		super.moveUnit = super.moveUnit * 3;
+		super.moveUnit = super.moveUnit * 2;
 		super.alterAtkRate(2);
 		super.setAtkRadius(3);
+	}
+	public Player( String name, int health, int atk, double atkRadius ) {
+		super( name, health, atk );
+		this.setAtkRadius(atkRadius);
+		super.setFill(Color.BLUE);
+		super.moveUnit = super.moveUnit * 2;
+		super.alterAtkRate(2);
+		System.out.println("Power: "+super.power);
+		super.getNameText();
+		System.out.println("Power: "+power);
 	}
 	
 	/**
@@ -60,6 +72,11 @@ public class Player extends Character{
 		} else if ( e.getCode().equals( KeyCode.RIGHT) ||
 					e.getCode().equals( KeyCode.D )) {
 			this.toMove[Player.RIGHT] = true;
+		} else if ( e.getCode().equals( KeyCode.F ) ||
+					e.getCode().equals( KeyCode.K )) {
+			World.save();
+		} else if ( e.getCode().equals( KeyCode.P )) {
+			World.pause();
 		}
 	}
 	public void removeKeyPressed(KeyEvent e) {
@@ -78,23 +95,47 @@ public class Player extends Character{
 		}
 
 	}
+	
+	public void reborn() {
+		this.setMaxHealth( this.getMaxHealth()-this.getMaxHealth()/10 );
+		this.setAttack(this.attack - this.attack/10);
+		this.setRadius(this.getRadius() - this.getRadius()/10);
+		this.updatePower();
+		World.setDeathScene();
+	}
 	@Override
 	public Attack attack( Character other ) {
 		Attack atk = super.attack(other);
+		if ( other.getCurrentHealth() < 1) {
+			this.incExpCount( other.power );
+		}
 		if ( atk == null ) {
 			return atk;
 		}
 		atk.setStroke(Color.BLUE);
 		return atk;
-		
 	}
 	
+	private void incExpCount(int power) {
+		this.expCounter += power;
+		if ( this.expCounter>10 ) {
+			this.expCounter-=10;
+			MapFactory.createPowerup().attack(this);
+		}
+	}
+
 	@Override
 	protected void updatePowerColor() {
-		this.power = this.getMaxHealth()/10+this.attack;
+		this.power = (int) (this.getMaxHealth()/10+this.attack+super.getRadius());
 		if ( this.power > 255 ) {
 			this.power = 255;
 		}
 		super.setFill( Color.rgb(power, power, power) );
+	}
+
+	public void setLocation(double x, double y) {
+		this.setCenterX(x);
+		this.setCenterY(y);
+		checkBounds();
 	}
 }

@@ -1,5 +1,6 @@
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
 
 public class MapGUI extends Pane{
 	
@@ -20,5 +21,9 @@ public class MapGUI extends Pane{
 	}
 	public void removeAllCharacters() {
 		this.getChildren().remove(0, this.getChildren().size());
+	}
+	public void addExtras(Node extra) {
+		this.getChildren().add(extra);
+		
 	}
 }

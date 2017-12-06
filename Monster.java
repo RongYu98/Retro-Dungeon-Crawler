@@ -7,17 +7,15 @@ public class Monster extends Character{ // DONE
 	private double sqrt2 = 0.707;
 	
 	public Monster() {
-		super();
-		setNewDestinations();
-		super.setFill(Color.RED);
-		// updatePowerColor();
-		
+		this("Bob",.5);
+	}
+	public Monster( String name, double difficulty) {
+		this(name, (int)(1000*difficulty), (int)(100*difficulty));
 	}
 	public Monster( String name, int health, int attack ) {
 		super( name, health, attack );
 		setNewDestinations();
-		// super.setFill(Color.RED);
-		// updatePowerColor();
+		updatePowerColor();
 	}
 
 	@Override
@@ -58,16 +56,17 @@ public class Monster extends Character{ // DONE
 		if ( atk == null ) {
 			return atk;
 		}
-		atk.setStroke(Color.RED);
+		atk.setStroke(super.getFill());
 		return atk;
 		
 	}
 	
 	protected void updatePowerColor() {
-		super.power = this.getMaxHealth()/10+this.attack;
-		if ( super.power > 255 );
-			super.power = 255;
-		super.setFill( Color.rgb(power, 0, power/10) );
+		super.updatePower();
+		int powerColor = super.power;
+		if ( powerColor > 255 );
+			powerColor = 255;
+		super.setFill( Color.rgb(powerColor, 0, 0) );
 	}
 	
 	private void setNewDestinations() {

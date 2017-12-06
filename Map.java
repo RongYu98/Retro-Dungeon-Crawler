@@ -3,6 +3,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
@@ -12,6 +13,8 @@ import javafx.animation.Timeline;
 import javafx.collections.ObservableList;
 
 public class Map {
+
+	private boolean stopped = true;
 
 	private MapGUI dungeon;
 	
@@ -30,8 +33,6 @@ public class Map {
 			checkInteractions();
 		})); ///  pause when leave, or just delete to make new map?
 		animation.setCycleCount(Timeline.INDEFINITE);
-		
-		
 	}
 	
 	public MapGUI getMapGUI() {
@@ -43,10 +44,31 @@ public class Map {
 	 * @param c  the character to be added
 	 */
 	public void addCharacter(Character c) {
+		checkOverLap(c);
 		dungeon.addCharacter(c);
 	}
 	
-	
+	private void checkOverLap(Character c) {
+		int times = 0;
+		ObservableList<Node> chars = dungeon.getChildren();
+		for ( int i=0; i< chars.size(); i++) {
+			if ( times > 10 ) {
+				return;
+			}
+			Node c1 = chars.get(i);
+			if ( c1 instanceof Character && !(c1 instanceof Monster) &&
+					!(c1 instanceof Player)) {
+				((Character)c1).setAtkRadius( ((Character)c1).getAtkRadius()*6);
+				if ( ((Character) c1).interactsWith(c) ) {
+					c.randomizeLocation();
+					i=0;
+					times++;
+				}
+				((Character)c1).setAtkRadius( ((Character)c1).getAtkRadius()/6);
+			}
+		}
+	}
+
 	public void charactersMove() {
 		ObservableList<Node> chars = dungeon.getChildren();
 		for ( Node c: chars ) {
@@ -62,8 +84,6 @@ public class Map {
 		ObservableList<Node> chars = dungeon.getChildren();
 		ArrayList<Node> attacks = new ArrayList<Node>();
 		for ( Node c1: chars ) {
-			// System.out.println( chars.size());
-			//System.out.println( c1.getClass());
 			for ( Node c2: chars ) {
 				if ( c1 instanceof Attack) {
 					((Attack) c1).fade();
@@ -76,17 +96,18 @@ public class Map {
 					continue;
 				}
 				if ( c1.getClass()!=c2.getClass() && ((Character) c1).interactsWith((Character) c2)) { 
-					if ( !(c1 instanceof Portal) && !(c2 instanceof Portal) && ((Character) c1).readyToAttack() ) {  // not mon and mon,  and not portal
+					if (((c1 instanceof Monster && c2 instanceof Player) || 
+					     (c2 instanceof Monster && c1 instanceof Player)) &&
+						 ((Character) c1).readyToAttack()) {
 						Attack line = ((Character) c1).attack( (Character) c2 );
-						System.out.println(c1.getClass());
-						System.out.println(((Character) c1).getCurrentHealth());
 						if ( line!=null) {
 							attacks.add(line);
 						}
-						// continue;
 					} else if ( c1 instanceof Portal && c2 instanceof Player) {
 						portalToEnter = (Portal) c1;
 						break;
+					} else if ( c1 instanceof Powerup && c2 instanceof Player) {
+						((Character) c1).attack((Character) c2);
 					}
 				}
 			}
@@ -99,10 +120,19 @@ public class Map {
 	}
 	
 	private void removeDeadStuff(ObservableList<Node> chars) {
+		// boolean playerRemoved = false;
 		for ( int i=0; i<chars.size(); i++){
 			Node n1 = chars.get(i);
 			if ( n1 instanceof Character) {
 				if ( ((Character) n1).getCurrentHealth() < 1) {
+					if ( n1 instanceof Player ) {
+						((Player) n1).reborn();
+						break;
+					}
+					if ( n1 instanceof SuperBoss ) {
+						((SuperBoss) n1).reborn();
+						break;
+					}
 					this.removeCharacter((Character) n1); 
 					this.removeCharacter(((Character) n1).getNameText());
 					i--;
@@ -115,14 +145,12 @@ public class Map {
 				}
 			}
 		}
-		
 	}
 
 	private void addAttack(ArrayList<Node> attacks) {
 		for ( Node a: attacks) {
 			if ( a != null ) {
 				dungeon.addAttack((Attack) a);
-				System.out.println(((Shape) a).getFill());
 			}
 		}
 		
@@ -140,12 +168,15 @@ public class Map {
 	public void start() {
 		animation.play();
 	}
-	
+	public void pause() {
+		animation.pause();
+	}
 	/**
 	 * Adds WASD movement via EventListener
 	 * @param c  The character to which to add the eventlistener
 	 */
 	public void addControls( Player c ) {
+		c.setLocation( World.sceneSizeX/2, World.sceneSizeY*.9);
 		c.setOnKeyPressed( e-> {
 			c.addKeyPressed( e );
 		});
@@ -159,12 +190,21 @@ public class Map {
 	 */
 	public void focus() {
 		central.setFocusTraversable(true);
+		dungeon.setFocusTraversable(true);
 	}
 	public void unFocus() {
 		central.setFocusTraversable(false);
+		dungeon.setFocusTraversable(false);
 	}
 	
 	public String toString() {
 		return String.valueOf(System.identityHashCode(this));
+	}
+	public void addText( Text text ) {
+		dungeon.addExtras(text);
+	}
+
+	public boolean stopped() {
+		return this.stopped;
 	}
 }
