@@ -21,6 +21,7 @@ public class Powerup extends Character{
 		this.type = type;
 		this.level = level;
 		this.updatePower();
+		this.setNoLevelName();
 	}
 	
 	public void act() {

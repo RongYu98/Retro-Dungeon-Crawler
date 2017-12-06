@@ -15,7 +15,7 @@ public class MapFactory {
 		for (int i=0;i<numOfMonsters;i++) {
 			addMonsterTo( map, difficulty+MapFactory.diff);
 		}
-		chanceAddPowerupTo(map);
+		chanceAddPowerupTo(map, difficulty);
 		addDungeonPortalTo(map, difficulty);
 		if ( Math.random()>.75) {
 			MapFactory.addPortalToOverworld(map);
@@ -23,8 +23,8 @@ public class MapFactory {
 		return map;
 	}
 	
-	private static void chanceAddPowerupTo(Map map) {
-		if ( Math.random() > .5 ) {
+	private static void chanceAddPowerupTo(Map map, double difficulty) {
+		if ( Math.random() > .9-difficulty ) {
 			addPowerupTo(map);
 		}
 	}
@@ -42,13 +42,13 @@ public class MapFactory {
 			addDungeonPortalTo(overworld, i/10.+diff);
 		}
 		addSuperBoss( overworld );
+		addQuitPortal( overworld );
 		return overworld;
 	}
 	
 	private static void addSuperBoss(Map overworld) {
 		overworld.addCharacter(charFact.createBoss(diff));
 	}
-
 	public static Player getAPlayer() {
 		return CharacterFactory.createPlayer("MC");
 	}
@@ -72,7 +72,7 @@ public class MapFactory {
 				 text.layoutBoundsProperty().getValue().getMinX())/2));
 		text.setLayoutY((World.sceneSizeY/2));
 		map.addText(text);
-		addPortalToOverworld( map );
+		addPortalToOverworld( map, World.sceneSizeX*.5, World.sceneSizeY*.7 );
 		MapFactory.decreaseDifficulty();
 		return map;
 	}
@@ -81,6 +81,7 @@ public class MapFactory {
 		Text text = new Text("You Won!");
 		text.setFont(new Font(150));
 		Text t2 = new Text("But there is still more...");
+		t2.setFont(new Font(20));
 		text.setFill(Color.BLUE);
 		t2.setFill(Color.BLUE);
 		text.setLayoutX((World.sceneSizeX/2-
@@ -90,11 +91,11 @@ public class MapFactory {
 				(t2.layoutBoundsProperty().getValue().getMaxX()-
 				 t2.layoutBoundsProperty().getValue().getMinX())/2));
 		text.setLayoutY((World.sceneSizeY/2));
-		t2.setLayoutY((World.sceneSizeY/3*2));
+		t2.setLayoutY((World.sceneSizeY*.6));
 		map.addText(text);
 		map.addText(t2);
 		MapFactory.increaseDifficulty();
-		addPortalToOverworld( map );
+		addPortalToOverworld( map, World.sceneSizeX*.5, World.sceneSizeY*.75 );
 		return map;
 	}
 
@@ -112,8 +113,14 @@ public class MapFactory {
 	}
 
 	private static void addPortalToOverworld(Map map) {
-		Portal portal = charFact.createPortal();
+		Portal portal = charFact.createPortal(); // will be random
 		portal.setName("OVERWORLD");
+		portal.setNoLevelName();
+		portal.setDestination(MapFactory.createOverworld());
+		map.addCharacter(portal);
+	}
+	private static void addPortalToOverworld(Map map, double x, double y) {
+		Portal portal = charFact.createPortal(x, y, 8, "OVERWORLD");
 		portal.setNoLevelName();
 		portal.setDestination(MapFactory.createOverworld());
 		map.addCharacter(portal);
@@ -136,19 +143,31 @@ public class MapFactory {
 	
 	public static Map createMenuScreen() {
 		Map map = new Map();
-		Portal p1 = charFact.createStartPortal(210,130,10);
-		Portal p2 = charFact.createLoadPortal(310,130,10);
-		Portal p3 = charFact.createQuitPortal(390,130,10);
-		Portal p4 = charFact.createHelpPortal(490,130,10);
-		p1.setNoLevelName();
-		p2.setNoLevelName();
-		p3.setNoLevelName();
-		p4.setNoLevelName();
+		Portal p1 = charFact.createStartPortal(World.sceneSizeX*.20,World.sceneSizeY*.5,10);
+		Portal p2 = charFact.createLoadPortal(World.sceneSizeX*.40,World.sceneSizeY*.5,10);
+		Portal p3 = charFact.createQuitPortal(World.sceneSizeX*.6, World.sceneSizeY*.5, 10);
+		Portal p4 = charFact.createHelpPortal(World.sceneSizeX*.8,World.sceneSizeY*.5,10);
 		map.addCharacter(p1);
 		map.addCharacter(p2);
 		map.addCharacter(p3);
 		map.addCharacter(p4);
+		
+		Text title = new Text("RETRO DUNGEON CRAWLER");
+		title.setFont( new Font(50));
+		double offSetX = title.layoutBoundsProperty().getValue().getMaxX()-
+					title.layoutBoundsProperty().getValue().getMinX();
+		double offSetY = title.layoutBoundsProperty().getValue().getMaxY()-
+					title.layoutBoundsProperty().getValue().getMinY();
+		title.setLayoutX(World.sceneSizeX*.5-offSetX/2);
+		title.setLayoutY(World.sceneSizeY*.3-offSetY/2);
+		title.setFill(Color.DARKORANGE);
+		map.addText(title);
 		return map;
+	}
+	public static void addQuitPortal(Map map) {
+		Portal p3 = charFact.createQuitPortal(390,130,10);
+		p3.setNoLevelName();
+		map.addCharacter(p3);
 	}
 	
 	public static Map makeTutorial() {
@@ -168,6 +187,7 @@ public class MapFactory {
 		t1.setLayoutY(World.sceneSizeY*.1);
 		m1.addText(t1);
 		p1 = charFact.createPortal();
+		p1.setName("NEXT");
 		p1.setNoLevelName();
 		p1.setDestination(m2);
 		p1.setCenterX(World.sceneSizeX*.5);
@@ -189,6 +209,7 @@ public class MapFactory {
 		Monster mon = charFact.createMonster(0.0);
 		mon.moveUnit = 0;
 		p2 = charFact.createPortal();
+		p2.setName("NEXT");
 		p2.setCenterX(World.sceneSizeX*.5);
 		p2.setCenterY(World.sceneSizeY*.25);
 		p2.setNoLevelName();
@@ -201,6 +222,7 @@ public class MapFactory {
 		t5.setLayoutX(World.sceneSizeX*.02);
 		t5.setLayoutY(World.sceneSizeY*.09);
 		Portal p5 = charFact.createPortal();
+		p5.setName("NEXT");
 		p5.setCenterX(World.sceneSizeX*.5);
 		p5.setCenterY(World.sceneSizeY*.25);
 		p5.setNoLevelName();
@@ -219,6 +241,7 @@ public class MapFactory {
 		pu.setCenterY(World.sceneSizeY*.65);
 		m3.addCharacter(pu);
 		p3 = charFact.createPortal();
+		p3.setName("NEXT");
 		p3.setCenterX(World.sceneSizeX*.5);
 		p3.setCenterY(World.sceneSizeY*.25);
 		p3.setNoLevelName();
@@ -236,10 +259,11 @@ public class MapFactory {
 		boss.setCenterX(World.sceneSizeX*.5);
 		boss.setCenterY(World.sceneSizeY*.5);
 		boss.setName("SUPER BOSS");
+		boss.setRadius(boss.getRadius()*2);
 		boss.moveUnit = 0;
 		m4.addCharacter(boss);
 		addPortalToMenuScreen(m4);
 		
-		return m2;
+		return m1;
 	}
 }

@@ -11,6 +11,7 @@ public class Monster extends Character{ // DONE
 	}
 	public Monster( String name, double difficulty) {
 		this(name, (int)(1000*difficulty), (int)(100*difficulty));
+		// super.setAtkRadius(super.getAtkRadius()+difficulty/5);
 	}
 	public Monster( String name, int health, int attack ) {
 		super( name, health, attack );

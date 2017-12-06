@@ -9,6 +9,7 @@ public class MetaPortal extends Portal{
 	public MetaPortal(String name, int type) {
 		super(name);
 		this.type = type;
+		super.setNoLevelName();
 	}
 	public Player loadCharacter() {
 		return CharacterFactory.createPlayer("MC");

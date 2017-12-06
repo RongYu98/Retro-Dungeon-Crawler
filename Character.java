@@ -154,7 +154,7 @@ public abstract class Character extends Circle { // DONE
 		return this.attackRadius;
 	}
 	public void updatePower() {
-		this.power = (int) (this.getMaxHealth()/100+this.attack/10+this.getRadius()-2);
+		this.power = (int) (this.getMaxHealth()/50+this.attack/5+this.getRadius()-3);
 		this.updateNameText();
 	}
 	
@@ -176,7 +176,7 @@ public abstract class Character extends Circle { // DONE
 	}
 	
 	protected void randomizeLocation() {
-		super.setCenterX(Math.random()*this.boundX*.9+this.boundX*.05);
-		super.setCenterY(Math.random()*this.boundY*.70+this.boundY*.05);
+		super.setCenterX( (int)(Math.random()*7)/10.*this.boundX+.1*this.boundX );
+		super.setCenterY( (int)(Math.random()*7)/10.*this.boundY+.1*this.boundY );
 	}
 }

@@ -7,6 +7,7 @@ public class MapGUI extends Pane{
 	Map owner;
 	public MapGUI( Map map ) {
 		owner = map;
+		super.setStyle("-fx-background-color: #bad4ff");
 	}
 	public void addCharacter( Character c ) {
 		this.getChildren().add(c);

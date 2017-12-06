@@ -59,7 +59,7 @@ public class CharacterFactory { // Done
 		Portal portal = new Portal();
 		return portal;
 	}
-	private Portal createPortal( double x, double y, double radius, String name ) {
+	public Portal createPortal( double x, double y, double radius, String name ) {
 		Portal portal = new Portal(name);
 		portal.setCenterX(x);
 		portal.setCenterY(y);
@@ -75,6 +75,7 @@ public class CharacterFactory { // Done
 	}
 	public Portal createStartPortal( double x, double y, double radius ) {
 		Portal portal = this.createPortal(x, y, radius, "START");
+		portal.setNoLevelName();
 		portal.setDestination( MapFactory.createOverworld());
 		return portal;
 	}

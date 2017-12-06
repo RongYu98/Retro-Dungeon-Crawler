@@ -1,4 +1,5 @@
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 
 public class Portal extends Character { // needs world to do rest
 
@@ -7,7 +8,7 @@ public class Portal extends Character { // needs world to do rest
 	double destDifficulty;
 	
 	public Portal( double destinationDifficulty) {
-		super( "Portal");
+		super( "Dungeon");
 		this.destDifficulty = destinationDifficulty;
 		super.setFill(Color.YELLOW);
 		super.setAtkRadius(.9);
